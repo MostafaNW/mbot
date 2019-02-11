@@ -111,6 +111,10 @@ MusicQueue.prototype.isConnected = function(guildID) {
 	return this.guildMap[guildID].channelID != null &&
    this.guildMap[guildID].voiceConnection != null;
 };
+
+MusicQueue.prototype.setDispatcher = function(guildID, dispatcher) {
+	this.guildMap[guildID].dispatcher = dispatcher;
+};
 // EXPORTING MODULE
 module.exports = MusicQueue;
 

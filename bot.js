@@ -11,10 +11,7 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const { prefix, token } = require('./config.json');
-//welcome
 const welcome  = '';
-//const stream = require('youtube-audio-stream');
-//const fs = require('fs');
 const ytdl = require('ytdl-core');
 const MusicQueue = require('./MusicQueue.js');
 // IMPORTANT
@@ -23,7 +20,7 @@ client.once('ready', () => {
 	console.log('Ready!');
 	// polling rates
 	setInterval(addGuilds, 5000);
-	setInterval(playSongs, 2000);
+	setInterval(playSongs, 10000);
 });
 const commandMap = { 'addvoice' : addVoice,
 	'enqueue' : enqueue,
@@ -55,9 +52,6 @@ function playAudio(guildID, url) {
 	console.log(`Trying ${url} for guild: ${guildID}`);
 	musicQueue.lock(guildID);
 	try{
-		//const myFile = fs.createWriteStream("temp.mp3");
-		//stream(url).pipe(myFile);
-		//const musicStream = stream(url);
 		const voiceConnection = musicQueue.getConnection(guildID);
 		if(voiceConnection == null) return;
 		const streamOptions = { seek: 0, volume: 1 };
