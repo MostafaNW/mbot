@@ -1,0 +1,25 @@
+{
+  "name": "mbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "dependencies": {
+    "discord.js": "github:discordjs/discord.js",
+    "fastpriorityqueue": "^0.6.3",
+    "ffmpeg": "0.0.4",
+    "node-opus": "^0.3.2",
+    "package-lock.json": "^1.0.0",
+    "ytdl-core": "^0.29.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://MostafaNW@bitbucket.org/MostafaNW/mbot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/MostafaNW/mbot#readme"
+}

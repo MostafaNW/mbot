@@ -9,6 +9,7 @@
 
 // DEPENDENCIES, CONFIG
 const Discord = require('discord.js');
+const fs = require('fs');
 const client = new Discord.Client();
 const { prefix, token } = require('./config.json');
 const welcome  = '';
@@ -16,6 +17,7 @@ const ytdl = require('ytdl-core');
 const MusicQueue = require('./MusicQueue.js');
 // IMPORTANT
 const musicQueue = new MusicQueue();
+const sounds = {'ourdaddy': true};
 client.once('ready', () => {
 	console.log('Ready!');
 	// polling rates
@@ -24,12 +26,14 @@ client.once('ready', () => {
 });
 const commandMap = { 'addvoice' : addVoice,
 	'enqueue' : enqueue,
-	'leavevoice': leaveVoice
+	'leavevoice': leaveVoice,
+  'sounds': sound
 };
 client.login(token);
 
 client.on('message', message => {
 	const parsedMessage = message.content.split(' ');
+  console.log('received a message hyuck');
 	if (parsedMessage[0] != `${prefix}mbot` || parsedMessage.length < 2
 	|| commandMap[parsedMessage[1]] == null) return;
 	console.log(message.content);
@@ -40,6 +44,13 @@ client.on('message', message => {
 	command(args);
 	// getAudio(parsedMessage[1]);
 });
+
+fs.watch('Sounds', (eventType, filename) => {
+  console.log(eventType);
+  // could be either 'rename' or 'change'. new file event and delete
+  // also generally emit 'rename'
+  console.log(filename);
+})
 
 function playAudio(guildID, url) {
 	/*
@@ -56,19 +67,43 @@ function playAudio(guildID, url) {
 		if(voiceConnection == null) return;
 		const streamOptions = { seek: 0, volume: 1 };
 		const stream = ytdl(url, { filter : 'audioonly' });
-		const dispatcher = voiceConnection.playStream(stream, streamOptions);
-		// dispatcher even handeling
+		const dispatcher = voiceConnection.play(stream, streamOptions);
+		// dispatcher event handeling
 		dispatcher.on('end', function() {
 			musicQueue.unlock(guildID);
 		});
+    dispatcher.on('error', error => {
+      console.log(error)
+    });
+
 	}
 	catch(exception) {
 		console.log(exception);
 	}
 }
+
+function playSound(guildID, soundFile){
+	try{
+		const voiceConnection = musicQueue.getConnection(guildID);
+		if(voiceConnection == null) return;
+		const streamOptions = { seek: 0, volume: 1 };
+		const stream = `Sounds/${soundFile}.mp3`;
+		const dispatcher = voiceConnection.play(stream, streamOptions);
+		// dispatcher even handeling
+    dispatcher.on('end', function() {
+      console.log('got em!~');
+    });
+    dispatcher.on('error', error => {
+      console.log(error)
+    });
+	}
+	catch(exception) {
+		console.log(exception);
+	}
+
+}
 /*
 	BOT COMMANDS
-
 
 */
 function enqueue(args) {
@@ -92,7 +127,7 @@ function addVoice(args) {
 	const guildID = args[0];
 	const name = args[1];
 	console.log(name);
-	const voiceChannel = client.channels.find('name', name);
+	const voiceChannel = client.channels.find(channel => channel.name == name);
 	if(voiceChannel == null) return;
 	voiceChannel.join()
 		.then(connection => {
@@ -120,7 +155,7 @@ function leaveVoice(args) {
 */
 function addGuilds() {
 	client.guilds.forEach(function(guild) {
-		console.log('Probing potential guilds...');
+		//console.log('Probing potential guilds...');
 		if (musicQueue.canditate(guild.id)) {
 			console.log(`Found ${guild.id}`);
 			musicQueue.addGuild(guild.id);
@@ -130,10 +165,21 @@ function addGuilds() {
 
 function playSongs() {
 	client.guilds.forEach(function(guild) {
-		console.log(`Checking ${guild.id} for audio, size ${musicQueue.sizeQueue(guild.id)}
-		\n , ${musicQueue.guildMap[guild.id].channelID}`);
+		//console.log(`Checking ${guild.id} for audio, size ${musicQueue.sizeQueue(guild.id)}
+		//\n , ${musicQueue.guildMap[guild.id].channelID}`);
 		if(musicQueue.canPlay(guild.id)) {
 			playAudio(guild.id, musicQueue.dequeue(guild.id).url);
 		}
 	});
+}
+
+function sound(args){
+  if(args.length == 1){
+    console.log('PLACE HOLDER FOR SOUNDS');
+    return;
+  }
+  //console.log(args[0])
+  if(sounds[args[1]] == null) return;
+  console.log(`${args[1]} found!`);
+  playSound(args[0],args[1]);
 }
