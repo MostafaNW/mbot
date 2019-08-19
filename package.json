@@ -5,6 +5,7 @@
   "main": "bot.js",
   "dependencies": {
     "discord.js": "github:discordjs/discord.js",
+    "express": "^4.17.1",
     "fastpriorityqueue": "^0.6.3",
     "ffmpeg": "0.0.4",
     "node-opus": "^0.3.2",

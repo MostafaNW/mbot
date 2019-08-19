@@ -17,7 +17,15 @@ const ytdl = require('ytdl-core');
 const MusicQueue = require('./MusicQueue.js');
 // IMPORTANT
 const musicQueue = new MusicQueue();
-const sounds = {'ourdaddy': true};
+const sounds = {'hitman': true};
+//express
+const express = require('express')
+const app = express()
+const port = 3000
+app.get('/', (req, res) => res.send('Hello World!'))
+
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
 client.once('ready', () => {
 	console.log('Ready!');
 	// polling rates
@@ -26,23 +34,27 @@ client.once('ready', () => {
 });
 const commandMap = { 'addvoice' : addVoice,
 	'enqueue' : enqueue,
-	'leavevoice': leaveVoice,
+	'disconnect': leaveVoice,
   'sounds': sound
 };
 client.login(token);
 
 client.on('message', message => {
 	const parsedMessage = message.content.split(' ');
-  console.log('received a message hyuck');
-	if (parsedMessage[0] != `${prefix}mbot` || parsedMessage.length < 2
-	|| commandMap[parsedMessage[1]] == null) return;
+	console.log('received a message hyuck');
+	if (parsedMessage[0][0] != `${prefix}`) return;
 	console.log(message.content);
-	const command = commandMap[parsedMessage[1]];
-	const args = [message.guild.id];
-	parsedMessage.slice(2).forEach(function(option) {args.push(option);});
-	console.log(args);
-	command(args);
-	// getAudio(parsedMessage[1]);
+	parsedCommand = parsedMessage[0].slice(1,)
+	if (!(parsedCommand in commandMap))
+		sound([message.guild.id, parsedCommand]); //should return null if the sound doesn't exist
+	else{
+		const command = commandMap[parsedCommand];
+		const args = [message.guild.id];
+		parsedMessage.slice(1).forEach(function(option) {args.push(option);});
+		console.log(args);
+		command(args);
+		// getAudio(parsedMessage[1]);
+	}
 });
 
 fs.watch('Sounds', (eventType, filename) => {
@@ -174,12 +186,12 @@ function playSongs() {
 }
 
 function sound(args){
-  if(args.length == 1){
-    console.log('PLACE HOLDER FOR SOUNDS');
+  if(args[1]== 'sounds'){
+    console.log('TIME TO ECHO ALL THE SOUNDS BOI');
     return;
   }
   //console.log(args[0])
-  if(sounds[args[1]] == null) return;
+  if(sounds[args[1]] == null) return; //the audio clip name either isn't in memory/doesn't exist
   console.log(`${args[1]} found!`);
   playSound(args[0],args[1]);
 }
