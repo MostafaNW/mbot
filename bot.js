@@ -15,6 +15,7 @@ const { prefix, token } = require('./config.json');
 const welcome  = '';
 const ytdl = require('ytdl-core');
 const MusicQueue = require('./MusicQueue.js');
+const Util = require('./Util.js');
 // IMPORTANT
 const musicQueue = new MusicQueue();
 const sounds = {'hitman': true};
@@ -32,7 +33,7 @@ client.once('ready', () => {
 	setInterval(addGuilds, 5000);
 	setInterval(playSongs, 10000);
 });
-const commandMap = { 'addvoice' : addVoice,
+const commandMap = { 'connect' : addVoice,
 	'enqueue' : enqueue,
 	'disconnect': leaveVoice,
   'sounds': sound
@@ -59,6 +60,15 @@ client.on('message', message => {
 
 fs.watch('Sounds', (eventType, filename) => {
   console.log(eventType);
+  if (eventType === 'change'){
+	  //new sound file
+	 const songName = Util.extractName(filename);
+	 if (songName==false){
+		 console.log(filename + ' is not of type .mp3');
+		 return;
+	 }
+	 sounds['songName'] == true;
+  }
   // could be either 'rename' or 'change'. new file event and delete
   // also generally emit 'rename'
   console.log(filename);
