@@ -101,9 +101,14 @@ MusicQueue.prototype.unlock = function(guildID) {
 
 MusicQueue.prototype.leaveChannel = function(guildID) {
 	// gracefully exits a voice channel
-	this.getConnection(guildID).disconnect();
-	this.updateChannel(guildID, null);
-	this.storeConnection(guildID, null);
+	try {
+		this.getConnection(guildID).disconnect();
+		this.updateChannel(guildID, null);
+		this.storeConnection(guildID, null);	
+	} catch (error) {
+		console.log(error)
+	}
+	
 };
 
 MusicQueue.prototype.isConnected = function(guildID) {

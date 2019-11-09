@@ -57,7 +57,10 @@ client.on('message', message => {
 		// getAudio(parsedMessage[1]);
 	}
 });
+client.on('disconnect', event => {
 
+
+})
 fs.watch('Sounds', (eventType, filename) => {
   console.log(eventType);
   if (eventType === 'change'){
@@ -113,29 +116,6 @@ function playAudio(guildID, url, isSong=false) {
 		console.log(exception);
 	}
 }
-/**
-function playSound(guildID, soundFile){
-	try{
-		const voiceConnection = musicQueue.getConnection(guildID);
-		if(voiceConnection == null) return;
-		const streamOptions = { seek: 0, volume: 1 };
-		
-		const dispatcher = voiceConnection.play(stream, streamOptions);
-		// dispatcher even handeling
-    dispatcher.on('end', function() {
-      console.log('got em!~');
-    });
-    dispatcher.on('error', error => {
-      console.log(error)
-    });
-	}
-	catch(exception) {
-		console.log(exception);
-	}
-
-}
-
- */
 
 /*
 	BOT COMMANDS
