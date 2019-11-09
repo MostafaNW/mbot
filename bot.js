@@ -204,7 +204,7 @@ function playSongs() {
 		//\n , ${musicQueue.guildMap[guild.id].channelID}`);
 		if(musicQueue.canPlay(guild.id)) {
 			const resource = musicQueue.dequeue(guild.id).url
-			if (Util.isSong(resource)){
+			if (!Util.isYoutube(resource)){
 				soundWrapper([guild.id, resource])
 			} else {
 				playAudio(guild.id, resource);
