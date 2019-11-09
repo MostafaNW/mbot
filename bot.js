@@ -15,10 +15,10 @@ const { prefix, token } = require('./config.json');
 const welcome  = '';
 const ytdl = require('ytdl-core');
 const MusicQueue = require('./MusicQueue.js');
-const Util = require('./Util.js');
+const Util = require('./Util.js')
 // IMPORTANT
 const musicQueue = new MusicQueue();
-const sounds = {'hitman': true};
+const sounds = {'hitman': true, 'shutup': true};
 //express
 const express = require('express')
 const app = express()
@@ -47,7 +47,7 @@ client.on('message', message => {
 	console.log(message.content);
 	parsedCommand = parsedMessage[0].slice(1,)
 	if (!(parsedCommand in commandMap))
-		sound([message.guild.id, parsedCommand]); //should return null if the sound doesn't exist
+		soundWrapper([message.guild.id, parsedCommand]); //should return null if the sound doesn't exist
 	else{
 		const command = commandMap[parsedCommand];
 		const args = [message.guild.id];
@@ -74,7 +74,7 @@ fs.watch('Sounds', (eventType, filename) => {
   console.log(filename);
 })
 
-function playAudio(guildID, url) {
+function playAudio(guildID, url, isSong=false) {
 	/*
 	Plays the given youtube audio (if its a valid link) to a given channel
 	Args: guildID -> String
@@ -83,33 +83,43 @@ function playAudio(guildID, url) {
 	*/
 
 	console.log(`Trying ${url} for guild: ${guildID}`);
+	if (musicQueue.isPlaying(guildID)){
+		musicQueue.addSong(guildID, url);
+		return;
+	}
 	musicQueue.lock(guildID);
 	try{
 		const voiceConnection = musicQueue.getConnection(guildID);
 		if(voiceConnection == null) return;
 		const streamOptions = { seek: 0, volume: 1 };
-		const stream = ytdl(url, { filter : 'audioonly' });
+		let stream;
+		if(!isSong){
+			stream = ytdl(url, { filter : 'audioonly' });
+		} else {
+			stream = `Sounds/${url}.mp3`;
+		}
 		const dispatcher = voiceConnection.play(stream, streamOptions);
 		// dispatcher event handeling
 		dispatcher.on('end', function() {
 			musicQueue.unlock(guildID);
 		});
-    dispatcher.on('error', error => {
-      console.log(error)
-    });
+  		dispatcher.on('error', error => {
+			console.log(error)
+	 	 	musicQueue.unlock(guildID);
+   		});
 
 	}
 	catch(exception) {
 		console.log(exception);
 	}
 }
-
+/**
 function playSound(guildID, soundFile){
 	try{
 		const voiceConnection = musicQueue.getConnection(guildID);
 		if(voiceConnection == null) return;
 		const streamOptions = { seek: 0, volume: 1 };
-		const stream = `Sounds/${soundFile}.mp3`;
+		
 		const dispatcher = voiceConnection.play(stream, streamOptions);
 		// dispatcher even handeling
     dispatcher.on('end', function() {
@@ -124,6 +134,9 @@ function playSound(guildID, soundFile){
 	}
 
 }
+
+ */
+
 /*
 	BOT COMMANDS
 
@@ -190,18 +203,26 @@ function playSongs() {
 		//console.log(`Checking ${guild.id} for audio, size ${musicQueue.sizeQueue(guild.id)}
 		//\n , ${musicQueue.guildMap[guild.id].channelID}`);
 		if(musicQueue.canPlay(guild.id)) {
-			playAudio(guild.id, musicQueue.dequeue(guild.id).url);
+			const resource = musicQueue.dequeue(guild.id).url
+			if (Util.isSong(resource)){
+				soundWrapper([guild.id, resource])
+			} else {
+				playAudio(guild.id, resource);
+			}		
 		}
 	});
 }
-
-function sound(args){
-  if(args[1]== 'sounds'){
-    console.log('TIME TO ECHO ALL THE SOUNDS BOI');
-    return;
-  }
+/**
+ * 
+ *
+ *  */
+function soundWrapper([guildID, soundName]){
   //console.log(args[0])
-  if(sounds[args[1]] == null) return; //the audio clip name either isn't in memory/doesn't exist
-  console.log(`${args[1]} found!`);
-  playSound(args[0],args[1]);
+  if(sounds[soundName] == null) return; //the audio clip name either isn't in memory/doesn't exist
+  console.log(`${soundName} found!`);
+  playAudio(guildID ,soundName, sound=true);
+}
+
+function sound() {
+	console.log('TIME TO ECHO ALL THE SOUNDS BOI');
 }
