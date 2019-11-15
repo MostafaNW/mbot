@@ -8,17 +8,17 @@
  */
 
 // DEPENDENCIES, CONFIG
-const Discord = require('discord.js');
-const fs = require('fs');
-const client = new Discord.Client();
-const { prefix, token } = require('./config.json');
+import { Client } from 'discord.js';
+import { readdir, watch } from 'fs';
+const client = new Client();
+import { prefix, token } from './config.json';
 const welcome  = '';
-const ytdl = require('ytdl-core');
-const MusicQueue = require('./MusicQueue.js');
-const Util = require('./Util.js')
+import ytdl from 'ytdl-core';
+import MusicQueue from './MusicQueue.js';
+import { isYoutube, extractName } from './Util.js';
 // IMPORTANT
 const musicQueue = new MusicQueue();
-const sounds = {'shutup': true};
+const sounds = {};
 const commandMap = { 'connect' : addVoice,
 	'enqueue' : enqueue,
 	'disconnect': leaveVoice,
@@ -53,12 +53,12 @@ client.on('message', message => {
 client.on('disconnect', event => {
 	})
 
-fs.readdir('Sounds', (err, files) => {
+readdir('Sounds', (err, files) => {
 	files.forEach(file => {
 		addSong(file);
 	});
 });
-fs.watch('Sounds', (eventType, filename) => {
+watch('Sounds', (eventType, filename) => {
   console.log(eventType);
   if (eventType === 'change'){
 	  //new sound file
@@ -171,7 +171,7 @@ function playSongs(){
 		//\n , ${musicQueue.guildMap[guild.id].channelID}`);
 		if(musicQueue.canPlay(guild.id)) {
 			const resource = musicQueue.dequeue(guild.id).url
-			if (!Util.isYoutube(resource)){
+			if (!isYoutube(resource)){
 				soundWrapper([guild.id, resource])
 			} else {
 				playAudio(guild.id, resource);
@@ -184,7 +184,7 @@ function playSongs(){
  *
  *  */
 function addSong(name){
-	extractedName = Util.extractName(name);
+	extractedName = extractName(name);
 	console.log(`Result: ${extractedName}`);
 	if(extractedName)
 		sounds[extractedName] = true;
