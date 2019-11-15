@@ -1,7 +1,7 @@
 module.exports = {
     extractName : (song) => {
         const regex = /[a-zA-Z0-9]+.mp3/gm;
-        return song.match(regex) === null? false: song_file.slice(0,-4);    
+        return song.match(regex) === null? false: song.slice(0,-4);    
     }, 
     isSong : (audio) => {
         console.log(`checking ${audio}!!!!!!!!!!!!!`);

@@ -18,27 +18,21 @@ const MusicQueue = require('./MusicQueue.js');
 const Util = require('./Util.js')
 // IMPORTANT
 const musicQueue = new MusicQueue();
-const sounds = {'hitman': true, 'shutup': true};
-//express
-const express = require('express')
-const app = express()
-const port = 3000
-app.get('/', (req, res) => res.send('Hello World!'))
-
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
-
-client.once('ready', () => {
-	console.log('Ready!');
-	// polling rates
-	setInterval(addGuilds, 5000);
-	setInterval(playSongs, 10000);
-});
+const sounds = {'shutup': true};
 const commandMap = { 'connect' : addVoice,
 	'enqueue' : enqueue,
 	'disconnect': leaveVoice,
   'sounds': sound
 };
 client.login(token);
+
+client.once('ready', () => {
+	console.log('Ready!');
+	// polling rates
+	setInterval(addGuilds, 5000);
+	setInterval(playSongs, 10000);
+	setInterval(() => console.log(sounds), 2000);
+});
 
 client.on('message', message => {
 	const parsedMessage = message.content.split(' ');
@@ -54,23 +48,21 @@ client.on('message', message => {
 		parsedMessage.slice(1).forEach(function(option) {args.push(option);});
 		console.log(args);
 		command(args);
-		// getAudio(parsedMessage[1]);
 	}
 });
 client.on('disconnect', event => {
+	})
 
-
-})
+fs.readdir('Sounds', (err, files) => {
+	files.forEach(file => {
+		addSong(file);
+	});
+});
 fs.watch('Sounds', (eventType, filename) => {
   console.log(eventType);
   if (eventType === 'change'){
 	  //new sound file
-	 const songName = Util.extractName(filename);
-	 if (songName==false){
-		 console.log(filename + ' is not of type .mp3');
-		 return;
-	 }
-	 sounds['songName'] == true;
+	 addSong(filename)
   }
   // could be either 'rename' or 'change'. new file event and delete
   // also generally emit 'rename'
@@ -196,6 +188,14 @@ function playSongs() {
  * 
  *
  *  */
+function addSong(name){
+	extractedName = Util.extractName(name);
+	console.log(`Result: ${extractedName}`);
+	if(extractedName)
+		sounds[extractedName] = true;
+	return;
+
+}
 function soundWrapper([guildID, soundName]){
   //console.log(args[0])
   if(sounds[soundName] == null) return; //the audio clip name either isn't in memory/doesn't exist
@@ -203,6 +203,10 @@ function soundWrapper([guildID, soundName]){
   playAudio(guildID ,soundName, sound=true);
 }
 
-function sound() {
-	console.log('TIME TO ECHO ALL THE SOUNDS BOI');
+function sound([guildID]) {
+	var message = "\`\`\`Sounds:\n"; 
+	Object.keys(sounds).forEach((key) =>{
+		message += sounds + ' ';
+	})
+	message += "\`\`\`";
 }
