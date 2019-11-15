@@ -17,10 +17,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://MostafaNW@bitbucket.org/MostafaNW/mbot.git"
-  },
   "author": "",
   "license": "ISC",
   "homepage": "https://bitbucket.org/MostafaNW/mbot#readme"
